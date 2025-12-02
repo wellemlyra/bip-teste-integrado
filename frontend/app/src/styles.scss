@@ -1,0 +1,54 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+html, body { 
+  height: 100%; 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+// Estilos globais para snackbars de erro
+.error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+
+  .mat-mdc-snack-bar-action {
+    color: white !important;
+  }
+}
+
+// Estilos para scrollbar personalizada
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+
+  &:hover {
+    background: #555;
+  }
+}
+
+// Estilos para animações suaves
+* {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+// Estilos para melhorar acessibilidade
+button:focus,
+a:focus {
+  outline: 2px solid #2196f3;
+  outline-offset: 2px;
+}

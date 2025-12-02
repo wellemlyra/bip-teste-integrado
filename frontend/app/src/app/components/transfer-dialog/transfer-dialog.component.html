@@ -1,0 +1,100 @@
+<h2 mat-dialog-title>
+  <mat-icon>swap_horiz</mat-icon>
+  Transferência entre Benefícios
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="transferForm" (ngSubmit)="onSubmit()">
+    <div class="form-section">
+      <h3>Benefício de Origem</h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Origem</mat-label>
+        <mat-select formControlName="fromId">
+          <mat-option *ngFor="let beneficio of beneficiosAtivos" [value]="beneficio.id">
+            {{ beneficio.nome }} - {{ formatCurrency(beneficio.valor) }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>account_balance</mat-icon>
+        <mat-error *ngIf="hasError('fromId')">
+          {{ getErrorMessage('fromId') }}
+        </mat-error>
+      </mat-form-field>
+
+      <div *ngIf="selectedFromBeneficio" class="info-box">
+        <p><strong>Saldo disponível:</strong> {{ formatCurrency(selectedFromBeneficio.valor) }}</p>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Benefício de Destino</h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Destino</mat-label>
+        <mat-select formControlName="toId">
+          <mat-option *ngFor="let beneficio of beneficiosAtivos" [value]="beneficio.id">
+            {{ beneficio.nome }} - {{ formatCurrency(beneficio.valor) }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>account_balance_wallet</mat-icon>
+        <mat-error *ngIf="hasError('toId')">
+          {{ getErrorMessage('toId') }}
+        </mat-error>
+      </mat-form-field>
+
+      <div *ngIf="selectedToBeneficio" class="info-box">
+        <p><strong>Saldo atual:</strong> {{ formatCurrency(selectedToBeneficio.valor) }}</p>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Valor da Transferência</h3>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Valor</mat-label>
+        <input matInput type="number" formControlName="amount" 
+               placeholder="0.00" step="0.01" min="0.01">
+        <mat-icon matPrefix>attach_money</mat-icon>
+        <span matPrefix>R$&nbsp;</span>
+        <mat-error *ngIf="hasError('amount')">
+          {{ getErrorMessage('amount') }}
+        </mat-error>
+        <mat-error *ngIf="hasInsufficientBalance && transferForm.get('amount')?.touched">
+          Saldo insuficiente! Saldo disponível: {{ selectedFromBeneficio ? formatCurrency(selectedFromBeneficio.valor) : '' }}
+        </mat-error>
+        <mat-hint>Valor a ser transferido</mat-hint>
+      </mat-form-field>
+
+      <div *ngIf="selectedFromBeneficio && transferForm.get('amount')?.value > 0" class="summary-box">
+        <h4>Resumo da Transferência</h4>
+        <p><strong>De:</strong> {{ selectedFromBeneficio.nome }}</p>
+        <p><strong>Para:</strong> {{ selectedToBeneficio?.nome }}</p>
+        <p><strong>Valor:</strong> {{ formatCurrency(transferForm.get('amount')?.value) }}</p>
+        <p *ngIf="selectedFromBeneficio" class="balance-after">
+          <strong>Saldo após transferência:</strong> 
+          {{ formatCurrency(selectedFromBeneficio.valor - transferForm.get('amount')?.value) }}
+        </p>
+      </div>
+    </div>
+
+    <div *ngIf="transferForm.hasError('sameBeneficio') && transferForm.touched" class="error-message">
+      <mat-icon>error</mat-icon>
+      Origem e destino devem ser diferentes!
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="loading">
+    <mat-icon>close</mat-icon>
+    Cancelar
+  </button>
+  <button mat-raised-button color="primary" 
+          (click)="onSubmit()" 
+          [disabled]="transferForm.invalid || loading || hasInsufficientBalance">
+    <ng-container *ngIf="!loading">
+      <mat-icon>send</mat-icon>
+    </ng-container>
+    <ng-container *ngIf="loading">
+      <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+    </ng-container>
+    {{ loading ? 'Transferindo...' : 'Transferir' }}
+  </button>
+</mat-dialog-actions>

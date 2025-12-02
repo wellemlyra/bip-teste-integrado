@@ -1,0 +1,21 @@
+# Backend
+backend-module/target/
+backend-module/.mvn/
+backend-module/.idea/
+backend-module/.vscode/
+backend-module/*.iml
+
+# Frontend
+frontend/app/node_modules/
+frontend/app/dist/
+frontend/app/.angular/
+frontend/app/.vscode/
+frontend/app/.idea/
+
+# Geral
+.git/
+.gitignore
+*.md
+.DS_Store
+*.log
+

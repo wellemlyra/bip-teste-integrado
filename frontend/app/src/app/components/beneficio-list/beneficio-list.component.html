@@ -1,0 +1,99 @@
+<div class="beneficio-list-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>account_balance_wallet</mat-icon>
+        Gestão de Benefícios
+      </mat-card-title>
+      <mat-card-subtitle>Gerencie seus benefícios e realize transferências</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon>
+        Novo Benefício
+      </button>
+      <button mat-raised-button color="accent" (click)="openTransferDialog()" [disabled]="beneficios.length < 2">
+        <mat-icon>swap_horiz</mat-icon>
+        Transferir
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div *ngIf="loading" class="loading-container">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Carregando benefícios...</p>
+      </div>
+
+      <div *ngIf="!loading && beneficios.length === 0" class="empty-state">
+        <mat-icon>inbox</mat-icon>
+        <h3>Nenhum benefício encontrado</h3>
+        <p>Clique em "Novo Benefício" para começar</p>
+      </div>
+
+      <table mat-table [dataSource]="beneficios" *ngIf="!loading && beneficios.length > 0" class="beneficio-table">
+        <!-- ID Column -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>ID</th>
+          <td mat-cell *matCellDef="let beneficio">{{ beneficio.id }}</td>
+        </ng-container>
+
+        <!-- Nome Column -->
+        <ng-container matColumnDef="nome">
+          <th mat-header-cell *matHeaderCellDef>Nome</th>
+          <td mat-cell *matCellDef="let beneficio">
+            <strong>{{ beneficio.nome }}</strong>
+          </td>
+        </ng-container>
+
+        <!-- Descrição Column -->
+        <ng-container matColumnDef="descricao">
+          <th mat-header-cell *matHeaderCellDef>Descrição</th>
+          <td mat-cell *matCellDef="let beneficio">
+            {{ beneficio.descricao || '-' }}
+          </td>
+        </ng-container>
+
+        <!-- Valor Column -->
+        <ng-container matColumnDef="valor">
+          <th mat-header-cell *matHeaderCellDef>Valor</th>
+          <td mat-cell *matCellDef="let beneficio">
+            <span class="valor-cell">{{ formatCurrency(beneficio.valor) }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Ativo Column -->
+        <ng-container matColumnDef="ativo">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let beneficio">
+            <mat-chip [class.active]="beneficio.ativo" [class.inactive]="!beneficio.ativo">
+              {{ beneficio.ativo ? 'Ativo' : 'Inativo' }}
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <!-- Ações Column -->
+        <ng-container matColumnDef="acoes">
+          <th mat-header-cell *matHeaderCellDef class="actions-header">Ações</th>
+          <td mat-cell *matCellDef="let beneficio" class="actions-cell">
+            <button mat-icon-button color="primary" 
+                    (click)="openEditDialog(beneficio)"
+                    matTooltip="Editar benefício">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" 
+                    (click)="deleteBeneficio(beneficio)"
+                    [disabled]="!beneficio.ativo"
+                    matTooltip="Desativar benefício">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

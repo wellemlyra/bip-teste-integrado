@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # Backend Spring Boot com H2 em memória
+  # O H2 é gerenciado pelo Spring Boot e executa os scripts automaticamente
+  backend:
+    build:
+      context: ./backend-module
+      dockerfile: Dockerfile
+    container_name: beneficio-backend
+    ports:
+      - "8080:8080"
+    environment:
+      # H2 em memória - executa schema.sql e data.sql automaticamente
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:beneficio-db;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+      - SPRING_SQL_INIT_MODE=always
+      - SPRING_SQL_INIT_SCHEMA_LOCATIONS=classpath:schema.sql
+      - SPRING_SQL_INIT_DATA_LOCATIONS=classpath:data.sql
+      - SPRING_H2_CONSOLE_ENABLED=true
+      - SPRING_H2_CONSOLE_PATH=/h2-console
+    networks:
+      - beneficio-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/api/v1/beneficios || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Frontend Angular
+  frontend:
+    build:
+      context: ./frontend/app
+      dockerfile: Dockerfile
+    container_name: beneficio-frontend
+    ports:
+      - "4200:80"
+    environment:
+      - API_URL=http://backend:8080/api/v1
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - beneficio-network
+
+networks:
+  beneficio-network:
+    driver: bridge
+
